@@ -36,7 +36,7 @@ The project has two halves:
 
 ## About the model
 
-`TwoConnectedTanks` connects two tanks that don't interact directly: `Tank` (its outflow only kicks in after `t = 5`) feeds into `Tank2`, which works out the residence time as `T = V / Q1`. It's built and compiled in OMEdit, and the resulting executable takes `-startTime=<value>` and `-stopTime=<value>` as command-line flags — that's what the GUI is passing under the hood.
+`TwoConnectedTanks` is a model with two tanks in sequence. After time `t = 5`, water flows from `Tank` into `Tank2`. The model calculates residence time using `T = V / Q1`. It is compiled in OMEdit, and the GUI passes your chosen start and stop times to the simulation.
 
 ## Getting it running
 
@@ -73,9 +73,7 @@ python main.py
 
 ## A bug worth mentioning
 
-The original model divided by zero (`T = V / Q1`) any time `Q1 = 0` — which is exactly what happens for any `stopTime < 5`, since `Tank`'s outflow doesn't start until `t = 5`. I fixed this at the model level by adding a small epsilon in `Tank2.mo` (`T = V / (Q1 + 1e-6)`) before compiling, so simulations across the required `0 <= start < stop < 5` range now run cleanly without that error.
-
-If the executable can't be found, the times you entered are invalid, or the run takes longer than 30 seconds, the app shows a clear error message instead of failing silently or freezing.
+Previously, simulations ending before 5 seconds could fail because the model calculated `T = V / Q1` while `Q1` was zero. I fixed this by using `T = V / (Q1 + 1e-6)` before compiling the executable. The application can now run correctly for the required range: `0 <= start < stop < 5`.
 
 ## Author
 
