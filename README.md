@@ -35,9 +35,9 @@ The project has two halves:
 
 ## About the model
 
-`TwoConnectedTanks` is an OpenModelica model with two tanks. In the original model, `Tank` begins its outflow at the fixed model time `t = 5`.
+`TwoConnectedTanks` is an OpenModelica model with two tanks from the `NonInteractingTanks` package. The GUI lets the user select the compiled executable and enter integer start and stop times.
 
-The GUI lets the user select the executable and enter integer start and stop times. For the required test range, `0 <= start < stop < 5`, the simulation ends before the outflow begins. During this range, the flow value `Q1` is zero.
+For the required test range, `0 <= start < stop < 5`, the original model can encounter a zero-flow condition where `Q1` is zero.
 
 The original model calculated residence time using `T = V / Q1`, which could cause a division-by-zero error when `Q1` was zero. Before compiling the executable, I changed this calculation to `T = V / (Q1 + 1e-6)` so the simulation runs safely within the required test range.
 
