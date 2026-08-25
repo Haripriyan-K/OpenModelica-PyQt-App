@@ -3,6 +3,9 @@
 
 This is a small PyQt6 desktop app that runs a compiled OpenModelica simulation and lets you set the start and stop time from a simple form instead of the command line. It was built for the FOSSEE OpenModelica screening task (Task 2).
 
+<img width="1193" height="750" alt="image" src="https://github.com/user-attachments/assets/62c05552-b414-4155-87e8-d2317a92e9b7" />
+
+
 ## What's in here
 
 The project has two halves:
