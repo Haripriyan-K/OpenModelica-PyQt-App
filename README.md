@@ -1,4 +1,3 @@
-# OpenModelica-PyQt-App
 # OpenModelica PyQt Runner
 
 This is a small PyQt6 desktop app that runs a compiled OpenModelica simulation and lets you set the start and stop time from a simple form instead of the command line. It was built for the FOSSEE OpenModelica screening task (Task 2).
@@ -36,11 +35,23 @@ The project has two halves:
 
 ## About the model
 
-`TwoConnectedTanks` is a model with two tanks in sequence. After time `t = 5`, water flows from `Tank` into `Tank2`. The model calculates residence time using `T = V / Q1`. It is compiled in OMEdit, and the GUI passes your chosen start and stop times to the simulation.
+`TwoConnectedTanks` is an OpenModelica model with two tanks. In the original model, `Tank` begins its outflow at the fixed model time `t = 5`.
+
+The GUI lets the user select the executable and enter integer start and stop times. For the required test range, `0 <= start < stop < 5`, the simulation ends before the outflow begins. During this range, the flow value `Q1` is zero.
+
+The original model calculated residence time using `T = V / Q1`, which could cause a division-by-zero error when `Q1` was zero. Before compiling the executable, I changed this calculation to `T = V / (Q1 + 1e-6)` so the simulation runs safely within the required test range.
+
+## Software needed
+
+To use the application, you need:
+
+- Python version 3.6 or later
+- The `PyQt6` Python package
+- Windows 10 or Windows 11, because the included model executable is a `.exe` file
+
+OpenModelica is needed only if you want to compile the model again. It is not required to run the included executable.
 
 ## Getting it running
-
-You'll need Python 3.6+ and Windows 10/11, since the compiled model is a Windows `.exe`.
 
 1. Clone the repo:
    ```bash
@@ -64,16 +75,18 @@ python main.py
 3. Click **Run Simulation**.
 4. The output box below fills in with the return code and whatever the executable printed, once it's done.
 
-## How the code is organized
+## Application design
 
-- **`SimulationRunner`** does the actual work — it holds onto the executable path and the two times, checks they're valid (file exists, `0 <= start < stop < 5`), puts together the `-startTime=/-stopTime=` arguments, and runs the exe through `subprocess.run` with a timeout so it can't hang forever. It doesn't know anything about the UI, so you could reuse or test it completely on its own.
-- **`MainWindow`** is the `QWidget` that holds all the actual widgets — the file picker, the spin boxes, the Run button — and wires them together. While a simulation is running it disables the inputs and shows a wait cursor, and if something goes wrong it pops up a proper error dialog instead of just crashing.
-- Keeping these two classes separate was a deliberate choice — the simulation logic doesn't need to know it's inside a GUI, and the GUI doesn't need to know how the simulation actually runs. Code follows PEP8 formatting throughout, with docstrings on the public methods.
-- One small convenience: the app adds a `bin/` folder next to whichever executable you pick to `PATH` before launching it, so the runtime DLLs don't have to be dumped directly alongside the `.exe`.
+- **Object-oriented design:** The application uses two classes with separate responsibilities. `SimulationRunner` encapsulates the executable path, time values, validation, and simulation execution. `MainWindow` encapsulates the PyQt6 interface and user interaction.
 
-## A bug worth mentioning
+- **Coding standards:** The code uses descriptive class and method names, type hints, docstrings, constants for fixed values, and PEP8-style formatting.
 
-Previously, simulations ending before 5 seconds could fail because the model calculated `T = V / Q1` while `Q1` was zero. I fixed this by using `T = V / (Q1 + 1e-6)` before compiling the executable. The application can now run correctly for the required range: `0 <= start < stop < 5`.
+- **Input validation and error handling:** Before starting a simulation, the app checks that the selected executable exists and that `0 <= start < stop < 5`. It displays clear error messages for invalid input, execution failures, and timeouts.
+
+- **User experience:** Users can select the executable through a Browse dialog, enter time values through spin boxes, run the simulation with one button, and read the returned output in the application. The inputs are disabled while a run is in progress to prevent duplicate execution.
+
+- **Runtime support:** The application adds an optional `bin/` folder beside the executable to `PATH`, allowing the included runtime DLLs to be found automatically.
+
 
 ## Author
 
